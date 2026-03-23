@@ -9,7 +9,7 @@ export async function onRequestPost(context) {
         headers: { 'content-type': 'application/json' }
       });
     }
-
+//
     const body = await request.json().catch(() => null);
     const imageBase64 = body?.imageBase64 || body?.image_base64 || body?.image;
     const mimeType = body?.mimeType || body?.mime_type;
