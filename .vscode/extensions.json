@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "EditorConfig.EditorConfig",
+    "ritwickdey.LiveServer",
+    "formulahendry.auto-close-tag",
+    "formulahendry.auto-rename-tag"
+  ],
+  "unwantedRecommendations": []
+}
