@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate highly detailed prompts from your images to use in Midjourney, DALL-E, or Stable Diffusion.">
+    <title>KashPrompt | AI Image to Prompt Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="blob shape-1"></div>
+    <div class="blob shape-2"></div>
+    <div class="blob shape-3"></div>
+
+    <main class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <h1>KashPrompt</h1>
+            </div>
+            <p class="subtitle">Reverse-engineer any image into a breathtaking AI prompt.</p>
+        </header>
+
+        <section class="api-key-section" id="api-key-section">
+            <div class="input-group">
+                <i class="fa-solid fa-key icon"></i>
+                <input type="password" id="api-key" placeholder="Enter your Google Gemini API Key" autocomplete="off">
+                <button type="button" class="btn-icon" id="save-key-btn" title="Save API Key">
+                    <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+            <small class="help-text">Your key is only stored locally in your browser (local development only).</small>
+        </section>
+
+        <section class="main-content">
+            <div class="upload-area" id="drop-zone">
+                <input type="file" id="file-input" accept="image/*" class="hidden">
+                <div class="upload-content" id="upload-content">
+                    <div class="upload-icon">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <h3>Drag & Drop your image here</h3>
+                    <p>or click to browse</p>
+                    <button class="btn btn-secondary" id="browse-btn">Select Image</button>
+                    <div class="supported-formats">Supports JPG, PNG, WEBP (Max 5MB)</div>
+                </div>
+                
+                <div class="preview-container hidden" id="preview-container">
+                    <img id="image-preview" src="" alt="Uploaded image preview">
+                    <div class="preview-overlay">
+                        <button class="btn btn-icon btn-danger" id="remove-img-btn" title="Remove Image">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-area">
+                <button class="btn btn-primary btn-glow btn-large" id="generate-btn" disabled>
+                    <i class="fa-solid fa-bolt"></i> Generate Prompt
+                </button>
+            </div>
+
+            <div class="result-area hidden" id="result-area">
+                <div class="result-header">
+                    <h3><i class="fa-solid fa-quote-left"></i> Generated Prompt</h3>
+                    <button class="btn btn-icon btn-outline" id="copy-btn" title="Copy to clipboard">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                
+                <div class="loading-state hidden" id="loading-state">
+                    <div class="spinner"></div>
+                    <p>Analyzing image structure, lighting, and style...</p>
+                </div>
+                
+                <div class="error-msg hidden" id="error-msg"></div>
+
+                <textarea id="prompt-result" readonly placeholder="Your generated prompt will appear here..."></textarea>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
