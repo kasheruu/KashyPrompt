@@ -13,16 +13,10 @@ Your API key is stored only in your browser via `localStorage` (you enter it in 
 
 ## Notes / limitations
 
-- Local development calls Gemini from the browser; public deployments use a Cloudflare Pages Function proxy so the key is not exposed to visitors.
+- All API calls go directly from the browser to the Google Gemini API using the user's own API key.
 - If Gemini responds with an unexpected structure, the UI will show an error message.
 
-## Public deployment (Cloudflare Pages + Functions)
+## Deployment
 
-For public deployments, this project includes a Cloudflare Pages Function at `/generate` that calls Gemini server-side.
-
-1. Deploy the repo to Cloudflare Pages (from GitHub).
-2. In your Cloudflare Pages project, add a secret/binding named `GEMINI_API_KEY`.
-3. Ensure your Function code is deployed (it lives in `functions/generate.js`).
-
-After that, the website will hide the API key input automatically and use the server-side proxy.
+Deploy as a **plain static site** (e.g., GitHub Pages or Cloudflare Pages). No server-side code or environment variables are required—users enter their own Gemini API key in the browser.
 

@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // UI Elements
     const apiKeyInput = document.getElementById('api-key');
-    const apiKeySection = document.getElementById('api-key-section');
     const saveKeyBtn = document.getElementById('save-key-btn');
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
@@ -20,12 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // State
     let currentImageBase64 = null;
     let currentImageMimeType = null;
-    const IS_LOCAL_DEVELOPMENT =
-        location.protocol === 'file:' ||
-        location.hostname === 'localhost' ||
-        location.hostname === '127.0.0.1' ||
-        location.hostname === '0.0.0.0';
-    const SHOULD_USE_WORKER = !IS_LOCAL_DEVELOPMENT;
     // Gemini model aliases change over time; try multiple currently-available candidates.
     // If none work, we fall back to showing the last error.
     const MODEL_CANDIDATES = [
@@ -36,16 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'gemini-flash-latest'
     ];
 
-    // In production (Cloudflare), we call a server-side Function so the API key UI isn't needed.
-    if (apiKeySection) apiKeySection.classList.toggle('hidden', SHOULD_USE_WORKER);
-
-    // Load API Key from localStorage only for local development.
-    if (IS_LOCAL_DEVELOPMENT) {
-        const savedApiKey = localStorage.getItem('gemini_api_key');
-        if (savedApiKey) {
-            apiKeyInput.value = savedApiKey;
-            setKeySavedState();
-        }
+    // Load API Key from localStorage
+    const savedApiKey = localStorage.getItem('gemini_api_key');
+    if (savedApiKey) {
+        apiKeyInput.value = savedApiKey;
+        setKeySavedState();
     }
 
     // Event Listeners
@@ -91,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Functions
     function saveApiKey() {
-        if (!IS_LOCAL_DEVELOPMENT) return; // Never persist keys on production.
         const key = apiKeyInput.value.trim();
         if (key) {
             localStorage.setItem('gemini_api_key', key);
@@ -170,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (!SHOULD_USE_WORKER && !apiKey) {
+        if (!apiKey) {
             showError("Please enter your Google Gemini API Key first.");
             apiKeyInput.focus();
             return;
@@ -184,33 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingState.classList.remove('hidden');
 
         try {
-            if (SHOULD_USE_WORKER) {
-                // Public deployment path: call Cloudflare Pages Function (server-side),
-                // so the Gemini API key is never exposed in the browser.
-                const response = await fetch('/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        imageBase64: currentImageBase64,
-                        mimeType: currentImageMimeType
-                    })
-                });
-
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to generate prompt');
-                }
-
-                if (data.prompt) {
-                    promptResult.value = String(data.prompt);
-                    loadingState.classList.add('hidden');
-                    promptResult.classList.remove('hidden');
-                    return;
-                }
-
-                throw new Error('Unexpected API response structure.');
-            }
-
             let lastError = null;
             let generatedText = null;
 
