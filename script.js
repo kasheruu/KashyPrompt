@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // UI Elements
     const apiKeyInput = document.getElementById('api-key');
+    const apiKeySection = document.getElementById('api-key-section');
     const saveKeyBtn = document.getElementById('save-key-btn');
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
@@ -19,6 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // State
     let currentImageBase64 = null;
     let currentImageMimeType = null;
+    const IS_LOCAL_DEVELOPMENT =
+        location.protocol === 'file:' ||
+        location.hostname === 'localhost' ||
+        location.hostname === '127.0.0.1' ||
+        location.hostname === '0.0.0.0';
+    // Production: Gemini key lives in Cloudflare Pages (GEMINI_API_KEY); browser never sees it.
+    const USE_SERVER_PROXY = !IS_LOCAL_DEVELOPMENT;
+
     // Gemini model aliases change over time; try multiple currently-available candidates.
     // If none work, we fall back to showing the last error.
     const MODEL_CANDIDATES = [
@@ -29,11 +38,15 @@ document.addEventListener('DOMContentLoaded', () => {
         'gemini-flash-latest'
     ];
 
-    // Load API Key from localStorage
-    const savedApiKey = localStorage.getItem('gemini_api_key');
-    if (savedApiKey) {
-        apiKeyInput.value = savedApiKey;
-        setKeySavedState();
+    if (apiKeySection) apiKeySection.classList.toggle('hidden', USE_SERVER_PROXY);
+
+    // Local dev: optional browser key (not used when deployed with server proxy).
+    if (!USE_SERVER_PROXY) {
+        const savedApiKey = localStorage.getItem('gemini_api_key');
+        if (savedApiKey) {
+            apiKeyInput.value = savedApiKey;
+            setKeySavedState();
+        }
     }
 
     // Event Listeners
@@ -79,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Functions
     function saveApiKey() {
+        if (USE_SERVER_PROXY) return;
         const key = apiKeyInput.value.trim();
         if (key) {
             localStorage.setItem('gemini_api_key', key);
@@ -157,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (!apiKey) {
+        if (!USE_SERVER_PROXY && !apiKey) {
             showError("Please enter your Google Gemini API Key first.");
             apiKeyInput.focus();
             return;
@@ -171,6 +185,31 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingState.classList.remove('hidden');
 
         try {
+            if (USE_SERVER_PROXY) {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        imageBase64: currentImageBase64,
+                        mimeType: currentImageMimeType
+                    })
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to generate prompt');
+                }
+
+                if (data.prompt) {
+                    promptResult.value = String(data.prompt);
+                    loadingState.classList.add('hidden');
+                    promptResult.classList.remove('hidden');
+                    return;
+                }
+
+                throw new Error('Unexpected API response structure.');
+            }
+
             let lastError = null;
             let generatedText = null;
 
