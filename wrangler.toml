@@ -4,6 +4,7 @@ name = "kashprompt"
 main = "worker.js"
 compatibility_date = "2024-09-01"
 
+# Only ship the static UI — not repo root (would include node_modules / workerd.exe).
 [assets]
-directory = "."
+directory = "./public"
 binding = "ASSETS"

@@ -1,6 +1,6 @@
 # KashPrompt (Image -> Prompt)
 
-This repo is a front-end app (`index.html`, `script.js`, `style.css`) that turns an uploaded image into a detailed prompt using the Google Gemini API.
+This repo is a front-end app in **`public/`** (`index.html`, `script.js`, `style.css`) that turns an uploaded image into a detailed prompt using the Google Gemini API.
 
 ## How the API key works
 
@@ -11,7 +11,7 @@ This repo is a front-end app (`index.html`, `script.js`, `style.css`) that turns
 
 ## Run locally
 
-1. Open `index.html` in your browser, **or** use a dev server (recommended).
+1. Open **`public/index.html`** in your browser, **or** run a dev server with **`public/`** as the site root (recommended), e.g. `npx serve public`.
 2. Enter a Gemini API key in the UI (local dev only).
 
 ## Deploy (hide your API key)
@@ -38,13 +38,14 @@ Alternatively: install Wrangler globally (`npm i -g wrangler`) and run `wrangler
 
 Confirm **Variables and secrets** lists **`GEMINI_API_KEY`** for this Worker.
 
-`wrangler.toml` sets `main = "worker.js"` and `[assets]` to the project root so `index.html`, `script.js`, and `style.css` are served; `/functions/*` is not exposed as public static files.
+`wrangler.toml` sets `main = "worker.js"` and **`[assets] directory = "./public"`** so deploy only uploads the UI (not `node_modules`). `/functions/*` is not exposed as public static files.
 
 ### B) Cloudflare Pages (`*.pages.dev`)
 
 1. Connect the repo to [Cloudflare Pages](https://developers.cloudflare.com/pages/).
-2. Add **`GEMINI_API_KEY`** under **Settings → Environment variables** (as a **secret**).
-3. Deploy. The **Pages Function** at `functions/generate.js` handles `/generate`.
+2. Set **Build** configuration: **Build output directory** = **`public`** (and no build command, or a no-op), so the site root is the contents of `public/`.
+3. Add **`GEMINI_API_KEY`** under **Settings → Environment variables** (as a **secret**).
+4. Deploy. The **Pages Function** at `functions/generate.js` handles `/generate`.
 
 **GitHub Pages** cannot run `/generate`; use Cloudflare Workers or Pages (or another serverless host).
 

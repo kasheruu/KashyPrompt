@@ -1,6 +1,6 @@
 /**
  * Cloudflare Worker + static assets (wrangler deploy → *.workers.dev).
- * Serves index.html / script.js / style.css and handles POST /generate.
+ * Serves files from public/ and handles POST /generate.
  * Pages Functions alone do not run on a Worker-only deploy — this file fixes 404 on /generate.
  */
 import { handleGeneratePost, handleGenerateOptions } from './functions/gemini-handler.js';
